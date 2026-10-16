@@ -1,0 +1,563 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f4f5f0">
+  <title>Gradebook | Student results</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: #f4f5f0;
+      --surface: #ffffff;
+      --ink: #202923;
+      --muted: #68716a;
+      --line: #dce2da;
+      --green: #214a3a;
+      --green-light: #e7eee8;
+      --orange: #c95e3b;
+      --shadow: 0 18px 50px rgb(32 41 35 / 7%);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-width: 320px;
+      min-height: 100vh;
+      margin: 0;
+      color: var(--ink);
+      background-color: var(--paper);
+      background-image: radial-gradient(#b9c5b8 0.7px, transparent 0.7px);
+      background-size: 22px 22px;
+      font-family: "Avenir Next", Avenir, "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button, input { font: inherit; }
+
+    .page {
+      width: min(1100px, calc(100% - 48px));
+      margin: 0 auto;
+      padding: 38px 0 56px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 26px;
+      border-bottom: 1px solid rgb(32 41 35 / 15%);
+    }
+
+    .brand {
+      display: flex;
+      gap: 11px;
+      align-items: center;
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    .brand-mark {
+      display: grid;
+      width: 34px;
+      aspect-ratio: 1;
+      place-items: center;
+      border-radius: 10px 10px 10px 3px;
+      color: white;
+      background: var(--green);
+      font-family: Georgia, serif;
+      font-size: 1.1rem;
+    }
+
+    .top-note {
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    .intro {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 38px 0 28px;
+      animation: enter 420ms ease-out both;
+    }
+
+    .eyebrow {
+      margin: 0 0 9px;
+      color: var(--orange);
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    h1, h2, p { margin-top: 0; }
+
+    h1 {
+      margin-bottom: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2.35rem, 5vw, 3.5rem);
+      font-weight: 500;
+      line-height: 1.02;
+    }
+
+    .intro-copy {
+      max-width: 390px;
+      margin-bottom: 4px;
+      color: var(--muted);
+      font-size: 0.94rem;
+      line-height: 1.6;
+    }
+
+    .workspace {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .entry, .records {
+      min-width: 0;
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      animation: enter 520ms ease-out both;
+    }
+
+    .entry {
+      padding: 30px;
+      background: var(--surface);
+      animation-delay: 70ms;
+    }
+
+    .entry form { max-width: 760px; }
+
+    .panel-heading {
+      display: flex;
+      align-items: start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    h2 {
+      margin-bottom: 5px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1.55rem;
+      font-weight: 500;
+    }
+
+    .panel-subtitle {
+      margin-bottom: 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .step {
+      display: grid;
+      width: 30px;
+      aspect-ratio: 1;
+      flex: 0 0 auto;
+      place-items: center;
+      border-radius: 50%;
+      color: var(--green);
+      background: var(--green-light);
+      font-size: 0.8rem;
+      font-weight: 800;
+    }
+
+    .field { margin-bottom: 20px; }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 0.83rem;
+      font-weight: 700;
+    }
+
+    input {
+      width: 100%;
+      height: 46px;
+      padding: 0 13px;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      outline: none;
+      color: var(--ink);
+      background: #fcfdfa;
+      transition: border-color 140ms ease, box-shadow 140ms ease;
+    }
+
+    input:focus {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgb(33 74 58 / 12%);
+    }
+
+    input::placeholder { color: #9aa19b; }
+
+    .marks-heading {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 11px;
+      font-size: 0.83rem;
+      font-weight: 700;
+    }
+
+    .marks-heading span:last-child {
+      color: var(--muted);
+      font-size: 0.73rem;
+      font-weight: 500;
+    }
+
+    .subject-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 112px;
+      gap: 14px;
+      align-items: center;
+      padding: 10px 0;
+      border-top: 1px solid #edf0eb;
+    }
+
+    .subject-row label { margin: 0; font-weight: 600; }
+    .subject-row input { height: 42px; text-align: right; }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .button {
+      min-height: 45px;
+      padding: 0 17px;
+      border: 1px solid transparent;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 0.84rem;
+      font-weight: 700;
+      transition: transform 140ms ease, background-color 140ms ease;
+    }
+
+    .button:hover { transform: translateY(-1px); }
+    .button:focus-visible { outline: 3px solid #e49a72; outline-offset: 2px; }
+
+    .button-primary { color: white; background: var(--green); }
+    .button-primary:hover { background: #173b2d; }
+    .button-secondary { border-color: var(--line); color: var(--ink); background: white; }
+    .button-secondary:hover { background: #f5f7f3; }
+
+    .records {
+      padding: 30px;
+      background: var(--surface);
+      animation-delay: 140ms;
+    }
+
+    .records-heading {
+      display: flex;
+      align-items: start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .record-count {
+      flex: 0 0 auto;
+      padding: 7px 10px;
+      border-radius: 4px;
+      color: var(--green);
+      background: var(--green-light);
+      font-size: 0.76rem;
+      font-weight: 700;
+    }
+
+    .table-scroll { overflow-x: auto; }
+
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      clip-path: inset(50%);
+    }
+
+    .records-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    .records-table th {
+      padding: 12px 14px;
+      color: var(--muted);
+      background: #f5f7f3;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .records-table th:first-child { border-radius: 5px 0 0 5px; }
+    .records-table th:last-child { border-radius: 0 5px 5px 0; }
+
+    .records-table td {
+      padding: 14px;
+      border-bottom: 1px solid #edf0eb;
+      font-size: 0.84rem;
+    }
+
+    .records-table td:first-child { min-width: 150px; font-weight: 700; }
+    .records-table .numeric { font-variant-numeric: tabular-nums; }
+
+    .grade-tag {
+      display: inline-grid;
+      width: 30px;
+      height: 30px;
+      place-items: center;
+      border-radius: 50%;
+      color: var(--green);
+      background: var(--green-light);
+      font-weight: 800;
+    }
+
+    .button-remove {
+      min-height: 32px;
+      padding: 0 9px;
+      border-color: var(--line);
+      color: var(--muted);
+      background: white;
+      font-size: 0.73rem;
+    }
+
+    .button-remove:hover { border-color: #d9a18b; color: #a33c27; background: #fff9f6; }
+
+    .empty-state {
+      padding: 32px 16px;
+      color: var(--muted);
+      text-align: center;
+      font-size: 0.85rem;
+    }
+
+    .empty-state[hidden], .table-scroll[hidden] { display: none; }
+
+    .error-message {
+      min-height: 1.2em;
+      margin: 10px 0 0;
+      color: #a33c27;
+      font-size: 0.8rem;
+    }
+
+    @keyframes enter {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 760px) {
+      .page { width: min(560px, calc(100% - 32px)); padding-top: 22px; }
+      .intro { align-items: start; flex-direction: column; gap: 13px; padding: 30px 0 22px; }
+      .intro-copy { max-width: 440px; }
+    }
+
+    @media (max-width: 420px) {
+      .page { width: calc(100% - 24px); }
+      .top-note { max-width: 140px; text-align: right; }
+      .entry, .records { padding: 22px 19px; }
+      .subject-row { grid-template-columns: minmax(0, 1fr) 96px; gap: 10px; }
+      .button { flex: 1; padding: 0 11px; }
+      .records-table th, .records-table td { padding-right: 10px; padding-left: 10px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark" aria-hidden="true">G</span><span>Fieldnote <span style="font-weight: 400; color: var(--muted)">/ Gradebook</span></span></div>
+      <span class="top-note">A clear picture of student progress</span>
+    </header>
+
+    <section class="intro" aria-labelledby="page-title">
+      <div>
+        <p class="eyebrow">Student assessment</p>
+        <h1 id="page-title">Marks to meaning.</h1>
+      </div>
+      <p class="intro-copy">Add students one at a time. Their marks, totals, averages, and grades collect in one class table.</p>
+    </section>
+
+    <div class="workspace">
+      <section class="entry" aria-labelledby="entry-title">
+        <div class="panel-heading">
+          <div>
+            <h2 id="entry-title">Enter marks</h2>
+            <p class="panel-subtitle">Add one student at a time. Each subject is out of 100.</p>
+          </div>
+          <span class="step" aria-hidden="true">01</span>
+        </div>
+
+        <form id="marks-form" novalidate>
+          <div class="field">
+            <label for="student-name">Student name</label>
+            <input id="student-name" name="studentName" type="text" placeholder="e.g. Sam Taylor" autocomplete="name" required maxlength="100">
+          </div>
+
+          <div class="marks-heading"><span>Subject marks</span><span>Enter a number from 0 to 100</span></div>
+          <div class="subject-row">
+            <label for="maths">Mathematics</label>
+            <input id="maths" name="maths" type="number" inputmode="decimal" min="0" max="100" step="any" placeholder="0–100" required>
+          </div>
+          <div class="subject-row">
+            <label for="english">English</label>
+            <input id="english" name="english" type="number" inputmode="decimal" min="0" max="100" step="any" placeholder="0–100" required>
+          </div>
+          <div class="subject-row">
+            <label for="science">Science</label>
+            <input id="science" name="science" type="number" inputmode="decimal" min="0" max="100" step="any" placeholder="0–100" required>
+          </div>
+
+          <p class="error-message" id="form-error" role="alert" aria-live="polite"></p>
+          <div class="actions">
+            <button class="button button-primary" type="submit">Add student <span aria-hidden="true">&rarr;</span></button>
+            <button class="button button-secondary" type="reset">Clear</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="records" aria-labelledby="records-title">
+        <div class="records-heading">
+          <div>
+            <h2 id="records-title">Class records</h2>
+            <p class="panel-subtitle">Grade scale: A 80+, B 70+, C 60+, D 50+, F under 50.</p>
+          </div>
+          <span class="record-count" id="record-count">0 students</span>
+        </div>
+
+        <p class="empty-state" id="empty-state">No student records yet. Add the first student using the form above.</p>
+        <div class="table-scroll" id="table-scroll" hidden>
+          <table class="records-table">
+            <caption class="visually-hidden">Student marks, totals, averages, and grades</caption>
+            <thead>
+              <tr>
+                <th scope="col">Student</th>
+                <th scope="col">Mathematics</th>
+                <th scope="col">English</th>
+                <th scope="col">Science</th>
+                <th scope="col">Total</th>
+                <th scope="col">Average</th>
+                <th scope="col">Grade</th>
+                <th scope="col"><span class="visually-hidden">Actions</span></th>
+              </tr>
+            </thead>
+            <tbody id="records-body"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const form = document.querySelector("#marks-form");
+    const nameInput = document.querySelector("#student-name");
+    const markInputs = [...form.querySelectorAll('input[type="number"]')];
+    const errorMessage = document.querySelector("#form-error");
+    const emptyState = document.querySelector("#empty-state");
+    const tableScroll = document.querySelector("#table-scroll");
+    const recordsBody = document.querySelector("#records-body");
+    const recordCount = document.querySelector("#record-count");
+
+    function gradeFor(average) {
+      if (average >= 80) return ["A", "Excellent work"];
+      if (average >= 70) return ["B", "Very good work"];
+      if (average >= 60) return ["C", "Good work"];
+      if (average >= 50) return ["D", "Keep building"];
+      return ["F", "More practice needed"];
+    }
+
+    function showError(message, input) {
+      errorMessage.textContent = message;
+      if (input) input.focus();
+    }
+
+    function updateRecordsView() {
+      const count = recordsBody.rows.length;
+      recordCount.textContent = `${count} ${count === 1 ? "student" : "students"}`;
+      emptyState.hidden = count > 0;
+      tableScroll.hidden = count === 0;
+    }
+
+    function addCell(row, value, className = "") {
+      const cell = document.createElement("td");
+      cell.textContent = value;
+      if (className) cell.className = className;
+      row.append(cell);
+      return cell;
+    }
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      errorMessage.textContent = "";
+
+      const studentName = nameInput.value.trim();
+      if (!studentName) {
+        showError("Please enter the student's name.", nameInput);
+        return;
+      }
+
+      const marks = markInputs.map((input) => input.value.trim());
+      const emptyMark = marks.findIndex((mark) => mark === "");
+      if (emptyMark !== -1) {
+        showError("Please enter a mark for each subject.", markInputs[emptyMark]);
+        return;
+      }
+
+      const numericMarks = marks.map(Number);
+      const invalidMark = numericMarks.findIndex((mark) => !Number.isFinite(mark) || mark < 0 || mark > 100);
+      if (invalidMark !== -1) {
+        showError("Each mark must be a number between 0 and 100.", markInputs[invalidMark]);
+        return;
+      }
+
+      const total = numericMarks.reduce((sum, mark) => sum + mark, 0);
+      const average = total / numericMarks.length;
+      const [grade] = gradeFor(average);
+      const row = document.createElement("tr");
+
+      addCell(row, studentName);
+      numericMarks.forEach((mark) => addCell(row, String(mark), "numeric"));
+      addCell(row, Number.isInteger(total) ? String(total) : total.toFixed(1), "numeric");
+      addCell(row, average.toFixed(1), "numeric");
+
+      const gradeCell = addCell(row, "");
+      const gradeTag = document.createElement("span");
+      gradeTag.className = "grade-tag";
+      gradeTag.textContent = grade;
+      gradeCell.append(gradeTag);
+
+      const actionCell = addCell(row, "");
+      const removeButton = document.createElement("button");
+      removeButton.type = "button";
+      removeButton.className = "button button-remove";
+      removeButton.textContent = "Remove";
+      removeButton.setAttribute("aria-label", `Remove ${studentName} record`);
+      removeButton.addEventListener("click", () => {
+        row.remove();
+        updateRecordsView();
+      });
+      actionCell.append(removeButton);
+
+      recordsBody.append(row);
+      updateRecordsView();
+      form.reset();
+      nameInput.focus();
+    });
+
+    form.addEventListener("reset", () => {
+      errorMessage.textContent = "";
+    });
+
+    updateRecordsView();
+  </script>
+</body>
+</html>
