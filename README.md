@@ -1,11 +1,9 @@
-# Student Gradebook
+# Student Task Manager
 
-A small browser-based tool for entering student names and marks in Mathematics, English, and Science. Each valid student is added to a class table with their total, average, and grade. Individual records can be removed.
+A browser-based assignment tracker for recording tasks, courses, due dates, priorities, and notes. Track completion, filter and search tasks, sort them by due date, priority, or creation time, and edit or remove assignments.
 
 ## Run
 
-Open `index.html` in a web browser. No installation or server is required.
+Open `index.html` in a web browser. No installation or server is required. Tasks are saved in the browser's local storage.
 
-## Grade scale
-
-Grades are based on the average mark: A (80–100), B (70–<80), C (60–<70), D (50–<60), and F (<50). Each subject mark must be between 0 and 100.
+The dashboard includes completion and overdue counts, a completion percentage, and reminders for upcoming deadlines. Use the theme button to switch between light and dark mode.

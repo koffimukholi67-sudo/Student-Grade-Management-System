@@ -2,562 +2,582 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f4f5f0">
-  <title>Gradebook | Student results</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#eef3f8">
+  <title>Student Task Manager</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap" rel="stylesheet">
   <style>
     :root {
+      --bg: #eef3f8;
+      --card: #fff;
+      --ink: #12233d;
+      --mute: #5d6b80;
+      --line: #d5dee9;
+      --brand: #1f4fd8;
+      --brand-ink: #fff;
+      --hi: #d62f4b;
+      --md: #e08a00;
+      --lo: #2a8f6a;
+      --over: #fde8ec;
       color-scheme: light;
-      --paper: #f4f5f0;
-      --surface: #ffffff;
-      --ink: #202923;
-      --muted: #68716a;
-      --line: #dce2da;
-      --green: #214a3a;
-      --green-light: #e7eee8;
-      --orange: #c95e3b;
-      --shadow: 0 18px 50px rgb(32 41 35 / 7%);
+      box-sizing: border-box;
+      padding-top: env(safe-area-inset-top, 0px);
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        color-scheme: dark;
+        --bg: #0f1829;
+        --card: #18243a;
+        --ink: #e8eef8;
+        --mute: #98a6bd;
+        --line: #2b3a55;
+        --brand: #6c93ff;
+        --brand-ink: #0b1426;
+        --hi: #ff6b83;
+        --md: #f0b040;
+        --lo: #52cc9f;
+        --over: #3a1d28;
+      }
+    }
+
+    :root[data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #0f1829;
+      --card: #18243a;
+      --ink: #e8eef8;
+      --mute: #98a6bd;
+      --line: #2b3a55;
+      --brand: #6c93ff;
+      --brand-ink: #0b1426;
+      --hi: #ff6b83;
+      --md: #f0b040;
+      --lo: #52cc9f;
+      --over: #3a1d28;
     }
 
     * { box-sizing: border-box; }
 
+    html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+
     body {
-      min-width: 320px;
-      min-height: 100vh;
       margin: 0;
+      background: var(--bg);
       color: var(--ink);
-      background-color: var(--paper);
-      background-image: radial-gradient(#b9c5b8 0.7px, transparent 0.7px);
-      background-size: 22px 22px;
-      font-family: "Avenir Next", Avenir, "Segoe UI", sans-serif;
-      -webkit-font-smoothing: antialiased;
+      font: 16px/1.5 "Bricolage Grotesque", system-ui, sans-serif;
     }
 
-    button, input { font: inherit; }
+    main { max-width: 860px; margin: 0 auto; padding: 20px 16px 48px; }
+    h1 { margin: 0 0 4px; font-size: 2rem; font-weight: 800; letter-spacing: -.02em; }
+    .sub { margin: 0 0 18px; color: var(--mute); }
 
-    .page {
-      width: min(1100px, calc(100% - 48px));
-      margin: 0 auto;
-      padding: 38px 0 56px;
-    }
-
-    .topbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding-bottom: 26px;
-      border-bottom: 1px solid rgb(32 41 35 / 15%);
-    }
-
-    .brand {
-      display: flex;
-      gap: 11px;
-      align-items: center;
-      font-size: 0.9rem;
-      font-weight: 700;
-    }
-
-    .brand-mark {
+    .stats {
       display: grid;
-      width: 34px;
-      aspect-ratio: 1;
-      place-items: center;
-      border-radius: 10px 10px 10px 3px;
-      color: white;
-      background: var(--green);
-      font-family: Georgia, serif;
-      font-size: 1.1rem;
-    }
-
-    .top-note {
-      color: var(--muted);
-      font-size: 0.78rem;
-    }
-
-    .intro {
-      display: flex;
-      align-items: end;
-      justify-content: space-between;
-      gap: 24px;
-      padding: 38px 0 28px;
-      animation: enter 420ms ease-out both;
-    }
-
-    .eyebrow {
-      margin: 0 0 9px;
-      color: var(--orange);
-      font-size: 0.72rem;
-      font-weight: 800;
-      text-transform: uppercase;
-    }
-
-    h1, h2, p { margin-top: 0; }
-
-    h1 {
-      margin-bottom: 0;
-      font-family: Georgia, "Times New Roman", serif;
-      font-size: clamp(2.35rem, 5vw, 3.5rem);
-      font-weight: 500;
-      line-height: 1.02;
-    }
-
-    .intro-copy {
-      max-width: 390px;
-      margin-bottom: 4px;
-      color: var(--muted);
-      font-size: 0.94rem;
-      line-height: 1.6;
-    }
-
-    .workspace {
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
-    }
-
-    .entry, .records {
-      min-width: 0;
-      border-radius: 8px;
-      box-shadow: var(--shadow);
-      animation: enter 520ms ease-out both;
-    }
-
-    .entry {
-      padding: 30px;
-      background: var(--surface);
-      animation-delay: 70ms;
-    }
-
-    .entry form { max-width: 760px; }
-
-    .panel-heading {
-      display: flex;
-      align-items: start;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 24px;
-    }
-
-    h2 {
-      margin-bottom: 5px;
-      font-family: Georgia, "Times New Roman", serif;
-      font-size: 1.55rem;
-      font-weight: 500;
-    }
-
-    .panel-subtitle {
-      margin-bottom: 0;
-      color: var(--muted);
-      font-size: 0.82rem;
-    }
-
-    .step {
-      display: grid;
-      width: 30px;
-      aspect-ratio: 1;
-      flex: 0 0 auto;
-      place-items: center;
-      border-radius: 50%;
-      color: var(--green);
-      background: var(--green-light);
-      font-size: 0.8rem;
-      font-weight: 800;
-    }
-
-    .field { margin-bottom: 20px; }
-
-    label {
-      display: block;
-      margin-bottom: 8px;
-      font-size: 0.83rem;
-      font-weight: 700;
-    }
-
-    input {
-      width: 100%;
-      height: 46px;
-      padding: 0 13px;
-      border: 1px solid var(--line);
-      border-radius: 5px;
-      outline: none;
-      color: var(--ink);
-      background: #fcfdfa;
-      transition: border-color 140ms ease, box-shadow 140ms ease;
-    }
-
-    input:focus {
-      border-color: var(--green);
-      box-shadow: 0 0 0 3px rgb(33 74 58 / 12%);
-    }
-
-    input::placeholder { color: #9aa19b; }
-
-    .marks-heading {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 11px;
-      font-size: 0.83rem;
-      font-weight: 700;
-    }
-
-    .marks-heading span:last-child {
-      color: var(--muted);
-      font-size: 0.73rem;
-      font-weight: 500;
-    }
-
-    .subject-row {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) 112px;
-      gap: 14px;
-      align-items: center;
-      padding: 10px 0;
-      border-top: 1px solid #edf0eb;
-    }
-
-    .subject-row label { margin: 0; font-weight: 600; }
-    .subject-row input { height: 42px; text-align: right; }
-
-    .actions {
-      display: flex;
-      flex-wrap: wrap;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
       gap: 10px;
-      margin-top: 20px;
+      margin-bottom: 12px;
     }
 
-    .button {
-      min-height: 45px;
-      padding: 0 17px;
-      border: 1px solid transparent;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 0.84rem;
-      font-weight: 700;
-      transition: transform 140ms ease, background-color 140ms ease;
+    .stat { padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--card); }
+    .stat b { display: block; font-size: 1.6rem; line-height: 1.1; }
+    .stat span { color: var(--mute); font-size: .85rem; }
+    .bar { height: 10px; margin-bottom: 6px; overflow: hidden; border-radius: 6px; background: var(--line); }
+    .bar i { display: block; width: 0; height: 100%; background: var(--lo); transition: width .3s; }
+
+    #soon, #storage-error {
+      margin: 10px 0;
+      padding: 10px 12px;
+      border-left: 4px solid var(--md);
+      border-radius: 6px;
+      background: var(--card);
     }
 
-    .button:hover { transform: translateY(-1px); }
-    .button:focus-visible { outline: 3px solid #e49a72; outline-offset: 2px; }
+    #soon[hidden], #storage-error[hidden] { display: none; }
+    #storage-error { border-left-color: var(--hi); }
 
-    .button-primary { color: white; background: var(--green); }
-    .button-primary:hover { background: #173b2d; }
-    .button-secondary { border-color: var(--line); color: var(--ink); background: white; }
-    .button-secondary:hover { background: #f5f7f3; }
-
-    .records {
-      padding: 30px;
-      background: var(--surface);
-      animation-delay: 140ms;
-    }
-
-    .records-heading {
-      display: flex;
-      align-items: start;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 20px;
-    }
-
-    .record-count {
-      flex: 0 0 auto;
-      padding: 7px 10px;
-      border-radius: 4px;
-      color: var(--green);
-      background: var(--green-light);
-      font-size: 0.76rem;
-      font-weight: 700;
-    }
-
-    .table-scroll { overflow-x: auto; }
-
-    .visually-hidden {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      overflow: hidden;
-      clip: rect(0, 0, 0, 0);
-      white-space: nowrap;
-      clip-path: inset(50%);
-    }
-
-    .records-table {
-      width: 100%;
-      border-collapse: collapse;
-      text-align: left;
-      white-space: nowrap;
-    }
-
-    .records-table th {
-      padding: 12px 14px;
-      color: var(--muted);
-      background: #f5f7f3;
-      font-size: 0.7rem;
-      font-weight: 700;
-      text-transform: uppercase;
-    }
-
-    .records-table th:first-child { border-radius: 5px 0 0 5px; }
-    .records-table th:last-child { border-radius: 0 5px 5px 0; }
-
-    .records-table td {
+    form {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 10px;
+      margin: 14px 0;
       padding: 14px;
-      border-bottom: 1px solid #edf0eb;
-      font-size: 0.84rem;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--card);
     }
 
-    .records-table td:first-child { min-width: 150px; font-weight: 700; }
-    .records-table .numeric { font-variant-numeric: tabular-nums; }
+    form .wide { grid-column: 1 / -1; }
+    label { display: grid; gap: 3px; color: var(--mute); font-size: .85rem; }
+    input, select, textarea, button { color: inherit; font: inherit; }
 
-    .grade-tag {
-      display: inline-grid;
-      width: 30px;
-      height: 30px;
-      place-items: center;
-      border-radius: 50%;
-      color: var(--green);
-      background: var(--green-light);
-      font-weight: 800;
+    input, select, textarea {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--bg);
     }
 
-    .button-remove {
-      min-height: 32px;
-      padding: 0 9px;
-      border-color: var(--line);
-      color: var(--muted);
-      background: white;
-      font-size: 0.73rem;
+    textarea { min-height: 52px; resize: vertical; }
+    :focus-visible { outline: 3px solid var(--brand); outline-offset: 2px; }
+
+    button {
+      padding: 8px 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--card);
+      cursor: pointer;
     }
 
-    .button-remove:hover { border-color: #d9a18b; color: #a33c27; background: #fff9f6; }
+    button.primary { border-color: var(--brand); background: var(--brand); color: var(--brand-ink); font-weight: 600; }
+    button.danger.arm { border-color: var(--hi); background: var(--hi); color: #fff; }
+    .tools { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+    .tools input { flex: 1 1 180px; width: auto; }
+    .tools select { width: auto; }
+    .tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+    .tabs button[aria-pressed="true"] { border-color: var(--ink); background: var(--ink); color: var(--bg); }
 
-    .empty-state {
-      padding: 32px 16px;
-      color: var(--muted);
-      text-align: center;
-      font-size: 0.85rem;
+    #list { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+
+    #list > li {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 4px 12px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-left: 6px solid var(--md);
+      border-radius: 10px;
+      background: var(--card);
     }
 
-    .empty-state[hidden], .table-scroll[hidden] { display: none; }
-
-    .error-message {
-      min-height: 1.2em;
-      margin: 10px 0 0;
-      color: #a33c27;
-      font-size: 0.8rem;
-    }
-
-    @keyframes enter {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    @media (max-width: 760px) {
-      .page { width: min(560px, calc(100% - 32px)); padding-top: 22px; }
-      .intro { align-items: start; flex-direction: column; gap: 13px; padding: 30px 0 22px; }
-      .intro-copy { max-width: 440px; }
-    }
-
-    @media (max-width: 420px) {
-      .page { width: calc(100% - 24px); }
-      .top-note { max-width: 140px; text-align: right; }
-      .entry, .records { padding: 22px 19px; }
-      .subject-row { grid-template-columns: minmax(0, 1fr) 96px; gap: 10px; }
-      .button { flex: 1; padding: 0 11px; }
-      .records-table th, .records-table td { padding-right: 10px; padding-left: 10px; }
-    }
+    #list > li.p-high { border-left-color: var(--hi); }
+    #list > li.p-low { border-left-color: var(--lo); }
+    #list > li.overdue { background: var(--over); }
+    #list > li.done .t { color: var(--mute); text-decoration: line-through; }
+    #list input[type="checkbox"] { width: 22px; height: 22px; margin-top: 3px; }
+    .t { overflow-wrap: anywhere; font-size: 1.05rem; font-weight: 600; }
+    .meta { color: var(--mute); font-size: .88rem; }
+    .meta .late { color: var(--hi); font-weight: 600; }
+    .notes { grid-column: 2; overflow-wrap: anywhere; font-size: .92rem; }
+    .acts { display: flex; grid-column: 2; flex-wrap: wrap; align-items: center; gap: 6px; }
+    .acts select { width: auto; padding: 5px 8px; }
+    .acts button { padding: 5px 10px; font-size: .9rem; }
+    #list > li.empty { display: block; padding: 28px 10px; border: 2px dashed var(--line); color: var(--mute); text-align: center; }
 
     @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+      .bar i { transition: none; }
     }
   </style>
 </head>
 <body>
-  <main class="page">
-    <header class="topbar">
-      <div class="brand"><span class="brand-mark" aria-hidden="true">G</span><span>Fieldnote <span style="font-weight: 400; color: var(--muted)">/ Gradebook</span></span></div>
-      <span class="top-note">A clear picture of student progress</span>
-    </header>
+  <main>
+    <h1>Student Task Manager</h1>
+    <p class="sub">Add assignments, set deadlines, and watch your progress climb.</p>
 
-    <section class="intro" aria-labelledby="page-title">
-      <div>
-        <p class="eyebrow">Student assessment</p>
-        <h1 id="page-title">Marks to meaning.</h1>
-      </div>
-      <p class="intro-copy">Add students one at a time. Their marks, totals, averages, and grades collect in one class table.</p>
+    <section class="stats" aria-label="Progress">
+      <div class="stat"><b id="sTotal">0</b><span>Total tasks</span></div>
+      <div class="stat"><b id="sDone">0</b><span>Completed</span></div>
+      <div class="stat"><b id="sOver">0</b><span>Overdue</span></div>
+      <div class="stat"><b id="sPct">0%</b><span>Completion rate</span></div>
     </section>
+    <div class="bar" role="progressbar" aria-label="Completion" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="fill"></i></div>
+    <div id="soon" role="status" hidden></div>
+    <p id="storage-error" role="alert" hidden></p>
 
-    <div class="workspace">
-      <section class="entry" aria-labelledby="entry-title">
-        <div class="panel-heading">
-          <div>
-            <h2 id="entry-title">Enter marks</h2>
-            <p class="panel-subtitle">Add one student at a time. Each subject is out of 100.</p>
-          </div>
-          <span class="step" aria-hidden="true">01</span>
-        </div>
+    <form id="f">
+      <label class="wide">Task title<input id="title" required maxlength="120" placeholder="e.g. Chemistry lab report"></label>
+      <label>Course<input id="course" maxlength="40" placeholder="e.g. CHEM 101"></label>
+      <label>Due date<input id="due" type="date" required></label>
+      <label>Priority
+        <select id="pri">
+          <option value="high">High</option>
+          <option value="medium" selected>Medium</option>
+          <option value="low">Low</option>
+        </select>
+      </label>
+      <label class="wide">Notes<textarea id="notes" maxlength="400" placeholder="Optional details"></textarea></label>
+      <div class="wide">
+        <button class="primary" id="save" type="submit">Add task</button>
+        <button id="cancel" type="button" hidden>Cancel edit</button>
+      </div>
+    </form>
 
-        <form id="marks-form" novalidate>
-          <div class="field">
-            <label for="student-name">Student name</label>
-            <input id="student-name" name="studentName" type="text" placeholder="e.g. Sam Taylor" autocomplete="name" required maxlength="100">
-          </div>
-
-          <div class="marks-heading"><span>Subject marks</span><span>Enter a number from 0 to 100</span></div>
-          <div class="subject-row">
-            <label for="maths">Mathematics</label>
-            <input id="maths" name="maths" type="number" inputmode="decimal" min="0" max="100" step="any" placeholder="0–100" required>
-          </div>
-          <div class="subject-row">
-            <label for="english">English</label>
-            <input id="english" name="english" type="number" inputmode="decimal" min="0" max="100" step="any" placeholder="0–100" required>
-          </div>
-          <div class="subject-row">
-            <label for="science">Science</label>
-            <input id="science" name="science" type="number" inputmode="decimal" min="0" max="100" step="any" placeholder="0–100" required>
-          </div>
-
-          <p class="error-message" id="form-error" role="alert" aria-live="polite"></p>
-          <div class="actions">
-            <button class="button button-primary" type="submit">Add student <span aria-hidden="true">&rarr;</span></button>
-            <button class="button button-secondary" type="reset">Clear</button>
-          </div>
-        </form>
-      </section>
-
-      <section class="records" aria-labelledby="records-title">
-        <div class="records-heading">
-          <div>
-            <h2 id="records-title">Class records</h2>
-            <p class="panel-subtitle">Grade scale: A 80+, B 70+, C 60+, D 50+, F under 50.</p>
-          </div>
-          <span class="record-count" id="record-count">0 students</span>
-        </div>
-
-        <p class="empty-state" id="empty-state">No student records yet. Add the first student using the form above.</p>
-        <div class="table-scroll" id="table-scroll" hidden>
-          <table class="records-table">
-            <caption class="visually-hidden">Student marks, totals, averages, and grades</caption>
-            <thead>
-              <tr>
-                <th scope="col">Student</th>
-                <th scope="col">Mathematics</th>
-                <th scope="col">English</th>
-                <th scope="col">Science</th>
-                <th scope="col">Total</th>
-                <th scope="col">Average</th>
-                <th scope="col">Grade</th>
-                <th scope="col"><span class="visually-hidden">Actions</span></th>
-              </tr>
-            </thead>
-            <tbody id="records-body"></tbody>
-          </table>
-        </div>
-      </section>
+    <div class="tools">
+      <input id="q" type="search" placeholder="Search title, course, notes" aria-label="Search tasks">
+      <select id="sort" aria-label="Sort tasks">
+        <option value="due">Sort: due date</option>
+        <option value="pri">Sort: priority</option>
+        <option value="new">Sort: newest</option>
+      </select>
+      <button id="theme" type="button">Toggle theme</button>
+      <button id="clear" type="button">Clear completed</button>
     </div>
+
+    <div class="tabs" id="tabs" aria-label="Filter tasks">
+      <button type="button" data-f="all" aria-pressed="true">All</button>
+      <button type="button" data-f="todo" aria-pressed="false">To do</button>
+      <button type="button" data-f="doing" aria-pressed="false">In progress</button>
+      <button type="button" data-f="done" aria-pressed="false">Done</button>
+    </div>
+
+    <ul id="list" aria-live="polite"></ul>
   </main>
 
   <script>
-    const form = document.querySelector("#marks-form");
-    const nameInput = document.querySelector("#student-name");
-    const markInputs = [...form.querySelectorAll('input[type="number"]')];
-    const errorMessage = document.querySelector("#form-error");
-    const emptyState = document.querySelector("#empty-state");
-    const tableScroll = document.querySelector("#table-scroll");
-    const recordsBody = document.querySelector("#records-body");
-    const recordCount = document.querySelector("#record-count");
+    (() => {
+      const storageKey = "stm.tasks.v1";
+      const statuses = new Set(["todo", "doing", "done"]);
+      const priorities = new Set(["high", "medium", "low"]);
+      const elements = Object.fromEntries(
+        ["f", "title", "course", "due", "pri", "notes", "save", "cancel", "q", "sort", "tabs", "list", "soon", "storage-error", "clear", "theme", "sTotal", "sDone", "sOver", "sPct", "fill"]
+          .map((id) => [id, document.getElementById(id)])
+      );
+      let tasks = [];
+      let filter = "all";
+      let editId = null;
+      let armedId = null;
 
-    function gradeFor(average) {
-      if (average >= 80) return ["A", "Excellent work"];
-      if (average >= 70) return ["B", "Very good work"];
-      if (average >= 60) return ["C", "Good work"];
-      if (average >= 50) return ["D", "Keep building"];
-      return ["F", "More practice needed"];
-    }
-
-    function showError(message, input) {
-      errorMessage.textContent = message;
-      if (input) input.focus();
-    }
-
-    function updateRecordsView() {
-      const count = recordsBody.rows.length;
-      recordCount.textContent = `${count} ${count === 1 ? "student" : "students"}`;
-      emptyState.hidden = count > 0;
-      tableScroll.hidden = count === 0;
-    }
-
-    function addCell(row, value, className = "") {
-      const cell = document.createElement("td");
-      cell.textContent = value;
-      if (className) cell.className = className;
-      row.append(cell);
-      return cell;
-    }
-
-    form.addEventListener("submit", (event) => {
-      event.preventDefault();
-      errorMessage.textContent = "";
-
-      const studentName = nameInput.value.trim();
-      if (!studentName) {
-        showError("Please enter the student's name.", nameInput);
-        return;
+      function today() {
+        const date = new Date();
+        return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
       }
 
-      const marks = markInputs.map((input) => input.value.trim());
-      const emptyMark = marks.findIndex((mark) => mark === "");
-      if (emptyMark !== -1) {
-        showError("Please enter a mark for each subject.", markInputs[emptyMark]);
-        return;
+      function dateAfter(days) {
+        const date = new Date();
+        date.setDate(date.getDate() + days);
+        return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
       }
 
-      const numericMarks = marks.map(Number);
-      const invalidMark = numericMarks.findIndex((mark) => !Number.isFinite(mark) || mark < 0 || mark > 100);
-      if (invalidMark !== -1) {
-        showError("Each mark must be a number between 0 and 100.", markInputs[invalidMark]);
-        return;
+      function formatDate(value) {
+        const [year, month, day] = value.split("-").map(Number);
+        return new Date(year, month - 1, day).toLocaleDateString(undefined, {
+          weekday: "short",
+          month: "short",
+          day: "numeric"
+        });
       }
 
-      const total = numericMarks.reduce((sum, mark) => sum + mark, 0);
-      const average = total / numericMarks.length;
-      const [grade] = gradeFor(average);
-      const row = document.createElement("tr");
+      function isValidTask(task) {
+        return task && typeof task.id === "string" &&
+          typeof task.title === "string" && typeof task.course === "string" &&
+          typeof task.due === "string" && /^\d{4}-\d{2}-\d{2}$/.test(task.due) &&
+          priorities.has(task.pri) && typeof task.notes === "string" &&
+          statuses.has(task.status) && Number.isFinite(task.created);
+      }
 
-      addCell(row, studentName);
-      numericMarks.forEach((mark) => addCell(row, String(mark), "numeric"));
-      addCell(row, Number.isInteger(total) ? String(total) : total.toFixed(1), "numeric");
-      addCell(row, average.toFixed(1), "numeric");
+      function showStorageError(message) {
+        elements["storage-error"].textContent = message;
+        elements["storage-error"].hidden = !message;
+      }
 
-      const gradeCell = addCell(row, "");
-      const gradeTag = document.createElement("span");
-      gradeTag.className = "grade-tag";
-      gradeTag.textContent = grade;
-      gradeCell.append(gradeTag);
+      function saveTasks() {
+        try {
+          localStorage.setItem(storageKey, JSON.stringify(tasks));
+          showStorageError("");
+        } catch (error) {
+          showStorageError("Your changes could not be saved in this browser. Keep this page open to avoid losing them.");
+          console.error("Could not save tasks to browser storage.", error);
+        }
+      }
 
-      const actionCell = addCell(row, "");
-      const removeButton = document.createElement("button");
-      removeButton.type = "button";
-      removeButton.className = "button button-remove";
-      removeButton.textContent = "Remove";
-      removeButton.setAttribute("aria-label", `Remove ${studentName} record`);
-      removeButton.addEventListener("click", () => {
-        row.remove();
-        updateRecordsView();
+      function loadTasks() {
+        let stored;
+        try {
+          stored = localStorage.getItem(storageKey);
+        } catch (error) {
+          showStorageError("Saved tasks are unavailable in this browser. Changes may not persist after you close this page.");
+          console.error("Could not read tasks from browser storage.", error);
+          return null;
+        }
+
+        if (stored === null) return null;
+
+        try {
+          const parsed = JSON.parse(stored);
+          if (!Array.isArray(parsed) || !parsed.every(isValidTask)) {
+            throw new Error("Saved task data has an invalid format.");
+          }
+          return parsed;
+        } catch (error) {
+          showStorageError("Saved tasks could not be loaded because the stored data is invalid.");
+          console.error("Could not parse saved tasks.", error);
+          return [];
+        }
+      }
+
+      function newId() {
+        return `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`;
+      }
+
+      function isOverdue(task) {
+        return task.status !== "done" && task.due < today();
+      }
+
+      function createSampleTasks() {
+        return [
+          { id: newId(), title: "Read chapter 4", course: "History", due: dateAfter(1), pri: "medium", notes: "Take notes on key dates", status: "doing", created: 1 },
+          { id: newId(), title: "Submit calculus problem set", course: "MATH 201", due: dateAfter(3), pri: "high", notes: "", status: "todo", created: 2 },
+          { id: newId(), title: "Buy lab notebook", course: "CHEM 101", due: dateAfter(-1), pri: "low", notes: "", status: "todo", created: 3 }
+        ];
+      }
+
+      function updateStats() {
+        const total = tasks.length;
+        const completed = tasks.filter((task) => task.status === "done").length;
+        const overdue = tasks.filter(isOverdue).length;
+        const percentage = total ? Math.round(completed / total * 100) : 0;
+
+        elements.sTotal.textContent = total;
+        elements.sDone.textContent = completed;
+        elements.sOver.textContent = overdue;
+        elements.sPct.textContent = `${percentage}%`;
+        elements.fill.style.width = `${percentage}%`;
+        elements.fill.parentElement.setAttribute("aria-valuenow", String(percentage));
+
+        const dueSoon = tasks.filter((task) =>
+          task.status !== "done" && task.due >= today() && task.due <= dateAfter(2)
+        ).length;
+        const reminders = [];
+        if (overdue) reminders.push(`${overdue} overdue`);
+        if (dueSoon) reminders.push(`${dueSoon} due within 2 days`);
+
+        elements.soon.textContent = reminders.length ? `Heads up: ${reminders.join(", ")}.` : "";
+        elements.soon.hidden = reminders.length === 0;
+      }
+
+      function appendTask(task) {
+        const item = document.createElement("li");
+        item.dataset.id = task.id;
+        item.classList.add(`p-${task.pri === "medium" ? "med" : task.pri}`);
+        if (task.status === "done") item.classList.add("done");
+        if (isOverdue(task)) item.classList.add("overdue");
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.dataset.a = "check";
+        checkbox.checked = task.status === "done";
+        checkbox.setAttribute("aria-label", checkbox.checked ? "Mark task not done" : "Mark task done");
+        item.append(checkbox);
+
+        const summary = document.createElement("div");
+        const title = document.createElement("div");
+        title.className = "t";
+        title.textContent = task.title;
+        summary.append(title);
+
+        const meta = document.createElement("div");
+        meta.className = "meta";
+        meta.textContent = `${task.course ? `${task.course} · ` : ""}Due ${formatDate(task.due)}`;
+        if (isOverdue(task)) {
+          const late = document.createElement("span");
+          late.className = "late";
+          late.textContent = " Overdue";
+          meta.append(late);
+        }
+        meta.append(` · ${task.pri} priority`);
+        summary.append(meta);
+        item.append(summary);
+
+        if (task.notes) {
+          const notes = document.createElement("div");
+          notes.className = "notes";
+          notes.textContent = task.notes;
+          item.append(notes);
+        }
+
+        const actions = document.createElement("div");
+        actions.className = "acts";
+
+        const status = document.createElement("select");
+        status.dataset.a = "status";
+        status.setAttribute("aria-label", `Status for ${task.title}`);
+        for (const [value, label] of [["todo", "To do"], ["doing", "In progress"], ["done", "Done"]]) {
+          const option = document.createElement("option");
+          option.value = value;
+          option.textContent = label;
+          option.selected = task.status === value;
+          status.append(option);
+        }
+        actions.append(status);
+
+        const edit = document.createElement("button");
+        edit.type = "button";
+        edit.dataset.a = "edit";
+        edit.textContent = "Edit";
+        actions.append(edit);
+
+        const remove = document.createElement("button");
+        remove.type = "button";
+        remove.dataset.a = "del";
+        remove.className = armedId === task.id ? "danger arm" : "danger";
+        remove.textContent = armedId === task.id ? "Confirm delete" : "Delete";
+        actions.append(remove);
+
+        item.append(actions);
+        elements.list.append(item);
+      }
+
+      function render() {
+        const query = elements.q.value.trim().toLowerCase();
+        const priorityRank = { high: 0, medium: 1, low: 2 };
+        const visibleTasks = tasks.filter((task) => {
+          if (filter !== "all" && task.status !== filter) return false;
+          return !query || `${task.title} ${task.course} ${task.notes}`.toLowerCase().includes(query);
+        });
+
+        visibleTasks.sort((first, second) => {
+          if (elements.sort.value === "pri") {
+            return priorityRank[first.pri] - priorityRank[second.pri] || first.due.localeCompare(second.due);
+          }
+          if (elements.sort.value === "new") return second.created - first.created;
+          return first.due.localeCompare(second.due);
+        });
+
+        elements.list.replaceChildren();
+        if (!visibleTasks.length) {
+          const empty = document.createElement("li");
+          empty.className = "empty";
+          empty.textContent = tasks.length
+            ? "No tasks match this view. Try another filter or search."
+            : "No tasks yet. Add your first assignment above.";
+          elements.list.append(empty);
+        } else {
+          visibleTasks.forEach(appendTask);
+        }
+        updateStats();
+      }
+
+      function resetForm() {
+        editId = null;
+        elements.f.reset();
+        elements.pri.value = "medium";
+        elements.save.textContent = "Add task";
+        elements.cancel.hidden = true;
+      }
+
+      function beginEdit(task) {
+        elements.title.value = task.title;
+        elements.course.value = task.course;
+        elements.due.value = task.due;
+        elements.pri.value = task.pri;
+        elements.notes.value = task.notes;
+        editId = task.id;
+        elements.save.textContent = "Save changes";
+        elements.cancel.hidden = false;
+        elements.title.focus();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      tasks = loadTasks();
+      if (tasks === null) {
+        tasks = createSampleTasks();
+        saveTasks();
+      }
+
+      elements.f.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const data = {
+          title: elements.title.value.trim(),
+          course: elements.course.value.trim(),
+          due: elements.due.value,
+          pri: elements.pri.value,
+          notes: elements.notes.value.trim()
+        };
+        if (!data.title || !data.due || !priorities.has(data.pri)) return;
+
+        if (editId) {
+          const task = tasks.find((item) => item.id === editId);
+          if (task) Object.assign(task, data);
+        } else {
+          tasks.push({ id: newId(), ...data, status: "todo", created: Date.now() });
+        }
+        resetForm();
+        saveTasks();
+        render();
       });
-      actionCell.append(removeButton);
 
-      recordsBody.append(row);
-      updateRecordsView();
-      form.reset();
-      nameInput.focus();
-    });
+      elements.cancel.addEventListener("click", resetForm);
 
-    form.addEventListener("reset", () => {
-      errorMessage.textContent = "";
-    });
+      elements.list.addEventListener("click", (event) => {
+        const target = event.target;
+        if (!(target instanceof HTMLElement)) return;
+        const action = target.dataset.a;
+        const item = target.closest("li[data-id]");
+        if (!action || !item) return;
 
-    updateRecordsView();
+        const id = item.dataset.id;
+        if (action === "del") {
+          if (armedId === id) {
+            tasks = tasks.filter((task) => task.id !== id);
+            armedId = null;
+            saveTasks();
+          } else {
+            armedId = id;
+          }
+          render();
+          return;
+        }
+
+        if (action === "edit") {
+          const task = tasks.find((itemTask) => itemTask.id === id);
+          if (task) beginEdit(task);
+        }
+      });
+
+      elements.list.addEventListener("change", (event) => {
+        const target = event.target;
+        if (!(target instanceof HTMLInputElement || target instanceof HTMLSelectElement)) return;
+        const action = target.dataset.a;
+        const item = target.closest("li[data-id]");
+        if (!action || !item) return;
+
+        const task = tasks.find((itemTask) => itemTask.id === item.dataset.id);
+        if (!task) return;
+        if (action === "check" && target instanceof HTMLInputElement) {
+          task.status = target.checked ? "done" : "todo";
+        } else if (action === "status" && target instanceof HTMLSelectElement && statuses.has(target.value)) {
+          task.status = target.value;
+        } else {
+          return;
+        }
+        armedId = null;
+        saveTasks();
+        render();
+      });
+
+      elements.tabs.addEventListener("click", (event) => {
+        const target = event.target;
+        if (!(target instanceof HTMLElement)) return;
+        const selectedFilter = target.dataset.f;
+        if (!selectedFilter) return;
+        filter = selectedFilter;
+        for (const button of elements.tabs.children) {
+          button.setAttribute("aria-pressed", String(button.dataset.f === filter));
+        }
+        render();
+      });
+
+      elements.q.addEventListener("input", render);
+      elements.sort.addEventListener("change", render);
+      elements.clear.addEventListener("click", () => {
+        tasks = tasks.filter((task) => task.status !== "done");
+        armedId = null;
+        saveTasks();
+        render();
+      });
+
+      elements.theme.addEventListener("click", () => {
+        const root = document.documentElement;
+        const isDark = root.getAttribute("data-theme") === "dark" ||
+          (!root.hasAttribute("data-theme") && window.matchMedia("(prefers-color-scheme: dark)").matches);
+        root.setAttribute("data-theme", isDark ? "light" : "dark");
+      });
+
+      render();
+    })();
   </script>
 </body>
 </html>
